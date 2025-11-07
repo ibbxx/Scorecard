@@ -249,9 +249,63 @@ h1 {
 }
 
 .metric-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--muted);
+}
+
+.metric-trend-select,
+.metric-percent-input {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.metric-trend-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 1rem;
+  min-width: 1rem;
+  text-align: center;
+  line-height: 1;
+  margin-right: -0.15rem;
+  cursor: pointer;
+}
+
+.metric-trend-select:focus {
+  outline: none;
+}
+
+.metric-percent-input {
+  width: 4ch;
+  min-width: 3ch;
+  text-align: right;
+  margin-left: -0.05rem;
+}
+
+.metric-percent-input:focus {
+  outline: none;
+}
+
+.metric-percent-input::-webkit-outer-spin-button,
+.metric-percent-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.metric-percent-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.metric-change-suffix {
+  font-size: 0.8rem;
 }
 
 .metric-change.positive {
@@ -260,6 +314,10 @@ h1 {
 
 .metric-change.negative {
   color: #d93025;
+}
+
+.metric-change.neutral {
+  color: var(--muted);
 }
 
 .metric-value-input::-webkit-outer-spin-button,

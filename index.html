@@ -68,7 +68,25 @@
                 value="251"
                 aria-label="Pengguna aktif"
               />
-              <div class="metric-change positive" data-change="activeUsers">↑ 0%</div>
+              <div class="metric-change" data-change="activeUsers">
+                <select
+                  class="metric-trend-select"
+                  data-trend-input="activeUsers"
+                  aria-label="Arah perubahan pengguna aktif"
+                >
+                  <option value="up" selected>↑</option>
+                  <option value="down">↓</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.1"
+                  class="metric-percent-input"
+                  data-change-input="activeUsers"
+                  value="0"
+                  aria-label="Perubahan pengguna aktif (%)"
+                />
+                <span class="metric-change-suffix">%</span>
+              </div>
             </div>
             <div class="metric-card" data-metric="totalEvents" role="tab">
               <div class="metric-label">
@@ -84,7 +102,25 @@
                 value="1100"
                 aria-label="Jumlah peristiwa"
               />
-              <div class="metric-change positive" data-change="totalEvents">↑ 0%</div>
+              <div class="metric-change" data-change="totalEvents">
+                <select
+                  class="metric-trend-select"
+                  data-trend-input="totalEvents"
+                  aria-label="Arah perubahan jumlah peristiwa"
+                >
+                  <option value="up" selected>↑</option>
+                  <option value="down">↓</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.1"
+                  class="metric-percent-input"
+                  data-change-input="totalEvents"
+                  value="0"
+                  aria-label="Perubahan jumlah peristiwa (%)"
+                />
+                <span class="metric-change-suffix">%</span>
+              </div>
             </div>
             <div class="metric-card" data-metric="sessions" role="tab">
               <div class="metric-label">
@@ -100,7 +136,25 @@
                 value="270"
                 aria-label="Sesi"
               />
-              <div class="metric-change positive" data-change="sessions">↑ 0%</div>
+              <div class="metric-change" data-change="sessions">
+                <select
+                  class="metric-trend-select"
+                  data-trend-input="sessions"
+                  aria-label="Arah perubahan sesi"
+                >
+                  <option value="up" selected>↑</option>
+                  <option value="down">↓</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.1"
+                  class="metric-percent-input"
+                  data-change-input="sessions"
+                  value="0"
+                  aria-label="Perubahan sesi (%)"
+                />
+                <span class="metric-change-suffix">%</span>
+              </div>
             </div>
             <div class="metric-card" data-metric="views" role="tab">
               <div class="metric-label">
@@ -116,7 +170,25 @@
                 value="382"
                 aria-label="Tampilan"
               />
-              <div class="metric-change positive" data-change="views">↑ 0%</div>
+              <div class="metric-change" data-change="views">
+                <select
+                  class="metric-trend-select"
+                  data-trend-input="views"
+                  aria-label="Arah perubahan tampilan"
+                >
+                  <option value="up" selected>↑</option>
+                  <option value="down">↓</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.1"
+                  class="metric-percent-input"
+                  data-change-input="views"
+                  value="0"
+                  aria-label="Perubahan tampilan (%)"
+                />
+                <span class="metric-change-suffix">%</span>
+              </div>
             </div>
           </div>
 

@@ -3,25 +3,33 @@ const metrics = {
     label: 'Pengguna aktif',
     value: 251,
     baseline: 103,
-    color: '#1a73e8'
+    color: '#1a73e8',
+    change: 0,
+    trend: 'up'
   },
   totalEvents: {
     label: 'Jumlah peristiwa',
     value: 1100,
     baseline: 798,
-    color: '#9334e6'
+    color: '#9334e6',
+    change: 0,
+    trend: 'up'
   },
   sessions: {
     label: 'Sesi',
     value: 270,
     baseline: 232,
-    color: '#0f9d58'
+    color: '#0f9d58',
+    change: 0,
+    trend: 'up'
   },
   views: {
     label: 'Tampilan',
     value: 382,
     baseline: 280,
-    color: '#fbbc04'
+    color: '#fbbc04',
+    change: 0,
+    trend: 'up'
   }
 };
 
@@ -44,6 +52,7 @@ const timelineLabels = [
 ];
 
 let activeMetric = 'activeUsers';
+const metricSeries = {};
 
 const chartTitle = document.querySelector('[data-active-label]');
 const realtimeValue = document.querySelector('[data-realtime]');
@@ -51,6 +60,11 @@ const realtimeSubtitle = document.querySelector('[data-realtime-subtitle]');
 const realtimeBreakdown = document.querySelector('[data-realtime-breakdown]');
 const realtimeBadge = document.querySelector('[data-realtime-label]');
 const ctx = document.getElementById('trafficChart').getContext('2d');
+
+initializeSeries();
+Object.keys(metrics).forEach(key => {
+  rescaleSeriesToMatchValue(key, metrics[key].value);
+});
 
 function hexToRgba(hex, alpha = 1) {
   const value = hex.replace('#', '');
@@ -119,6 +133,66 @@ function buildSeries(metricKey) {
   return { current, previous };
 }
 
+function initializeSeries() {
+  Object.keys(metrics).forEach(key => {
+    metricSeries[key] = buildSeries(key);
+  });
+}
+
+function getSeries(metricKey) {
+  if (!metricSeries[metricKey]) {
+    metricSeries[metricKey] = buildSeries(metricKey);
+  }
+  return metricSeries[metricKey];
+}
+
+function calculateAverage(values = []) {
+  if (!values.length) return 0;
+  const sum = values.reduce((acc, value) => acc + value, 0);
+  return sum / values.length;
+}
+
+function updateMetricInputValue(metricKey) {
+  const input = document.querySelector(`.metric-value-input[name="${metricKey}"]`);
+  if (input) {
+    input.value = metrics[metricKey].value;
+  }
+}
+
+function syncMetricValueWithSeries(metricKey) {
+  const series = getSeries(metricKey);
+  const average = Math.round(calculateAverage(series.current));
+  metrics[metricKey].value = Number.isFinite(average) ? average : 0;
+  updateMetricInputValue(metricKey);
+}
+
+function rescaleSeriesToMatchValue(metricKey, targetValue) {
+  const series = getSeries(metricKey);
+  const average = calculateAverage(series.current);
+  if (!average) {
+    const fallback = buildSeries(metricKey);
+    series.current.length = 0;
+    fallback.current.forEach(point => series.current.push(point));
+    series.previous.length = 0;
+    fallback.previous.forEach(point => series.previous.push(point));
+    return;
+  }
+  const ratio = targetValue / average;
+  for (let i = 0; i < series.current.length; i += 1) {
+    const scaled = Math.max(0, series.current[i] * ratio);
+    series.current[i] = Number(scaled.toFixed(2));
+  }
+}
+
+function refreshChartScale(metricKey) {
+  if (!chart) return;
+  const series = getSeries(metricKey);
+  const mergedValues = [...series.current, ...series.previous];
+  const yMax = determineYAxisMax(mergedValues);
+  chart.options.scales.y.max = yMax;
+  chart.options.scales.y.ticks.stepSize = determineStepSize(yMax);
+}
+
 function determineYAxisMax(values) {
   const rawMax = Math.max(...values, 0);
   const fallback = rawMax || 120;
@@ -139,6 +213,8 @@ function determineStepSize(maxValue) {
   return Math.max(10, chosen * magnitude);
 }
 
+const initialSeries = getSeries(activeMetric);
+
 const chart = new Chart(ctx, {
   type: 'line',
   data: {
@@ -146,12 +222,15 @@ const chart = new Chart(ctx, {
     datasets: [
       {
         label: '30 hari terakhir',
-        data: [],
+        data: initialSeries.current,
         borderColor: metrics[activeMetric].color,
         backgroundColor: createGradient(metrics[activeMetric].color),
         fill: true,
         tension: 0,
+        cubicInterpolationMode: 'default',
         borderWidth: 2,
+        borderCapStyle: 'butt',
+        borderJoinStyle: 'miter',
         pointRadius: 4,
         pointHoverRadius: 6,
         pointBackgroundColor: '#fff',
@@ -160,7 +239,7 @@ const chart = new Chart(ctx, {
       },
       {
         label: 'Periode sebelumnya',
-        data: [],
+        data: initialSeries.previous,
         borderColor: hexToRgba(metrics[activeMetric].color, 0.35),
         borderDash: [6, 6],
         borderWidth: 2,
@@ -222,6 +301,64 @@ const chart = new Chart(ctx, {
   }
 });
 
+enableChartDragging();
+
+function enableChartDragging() {
+  const canvas = chart.canvas ?? chart.ctx?.canvas;
+  if (!canvas) return;
+  let dragIndex = null;
+
+  function nearestPointIndex(evt) {
+    const points = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+    if (!points.length) return null;
+    const point = points[0];
+    if (point.datasetIndex !== 0) return null;
+    return point.index;
+  }
+
+  function applyDrag(evt) {
+    const series = getSeries(activeMetric);
+    const yScale = chart.scales.y;
+    if (!series || !yScale) return;
+    const value = yScale.getValueForPixel(evt.offsetY);
+    const safeValue = Math.max(0, Number.isFinite(value) ? value : 0);
+    series.current[dragIndex] = Number(safeValue.toFixed(2));
+    refreshChartScale(activeMetric);
+    chart.update('none');
+    syncMetricValueWithSeries(activeMetric);
+    updateRealtimeSection(activeMetric);
+  }
+
+  canvas.addEventListener('pointerdown', evt => {
+    const pointIndex = nearestPointIndex(evt);
+    if (pointIndex === null) return;
+    dragIndex = pointIndex;
+    if (canvas.setPointerCapture) {
+      canvas.setPointerCapture(evt.pointerId);
+    }
+    canvas.style.cursor = 'grabbing';
+    evt.preventDefault();
+  });
+
+  canvas.addEventListener('pointermove', evt => {
+    const pointIndex = nearestPointIndex(evt);
+    const isInteractive = pointIndex !== null;
+    canvas.style.cursor = dragIndex !== null ? 'grabbing' : isInteractive ? 'grab' : 'default';
+    if (dragIndex === null) return;
+    applyDrag(evt);
+  });
+
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(eventName => {
+    canvas.addEventListener(eventName, evt => {
+      if (canvas.hasPointerCapture?.(evt.pointerId) && canvas.releasePointerCapture) {
+        canvas.releasePointerCapture(evt.pointerId);
+      }
+      dragIndex = null;
+      canvas.style.cursor = 'default';
+    });
+  });
+}
+
 function setActiveCard(metricKey) {
   document.querySelectorAll('.metric-card').forEach(card => {
     const isActive = card.dataset.metric === metricKey;
@@ -244,36 +381,31 @@ function updatePercentages() {
     const metric = metrics[key];
     if (!metric) return;
 
-    const current = Math.max(0, metric.value || 0);
-    const baseline = getBaselineValue(metric);
-
-    if (!baseline) {
-      element.textContent = '—';
-      element.classList.remove('positive', 'negative');
-      return;
+    const delta = Number(metric.change) || 0;
+    const trend = metric.trend || 'flat';
+    const trendInput = element.querySelector('[data-trend-input]');
+    if (trendInput && document.activeElement !== trendInput) {
+      trendInput.value = trend;
     }
-
-    const delta = ((current - baseline) / baseline) * 100;
-    const formatter = new Intl.NumberFormat('id-ID', {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1
-    });
-    const arrow = delta >= 0 ? '↑' : '↓';
-    element.textContent = `${arrow} ${formatter.format(Math.abs(delta))}%`;
-    element.classList.toggle('positive', delta >= 0);
-    element.classList.toggle('negative', delta < 0);
+    const percentInput = element.querySelector('[data-change-input]');
+    if (percentInput && document.activeElement !== percentInput) {
+      percentInput.value = delta;
+    }
+    element.classList.toggle('positive', trend === 'up');
+    element.classList.toggle('negative', trend === 'down');
+    element.classList.toggle('neutral', trend !== 'up' && trend !== 'down');
   });
 }
 
-function updateRealtimeSection(metricKey = activeMetric) {
-  const metric = metrics[metricKey];
-  if (!metric) return;
-  realtimeValue.textContent = '0';
+function updateRealtimeSection() {
+  if (realtimeValue) {
+    realtimeValue.textContent = '0';
+  }
   if (realtimeSubtitle) {
-    realtimeSubtitle.textContent = `${metric.label.toUpperCase()} PER MENIT`;
+    realtimeSubtitle.textContent = 'PENGGUNA AKTIF PER MENIT';
   }
   if (realtimeBadge) {
-    realtimeBadge.textContent = metric.label.toUpperCase();
+    realtimeBadge.textContent = 'PENGGUNA AKTIF';
   }
   if (realtimeBreakdown) {
     realtimeBreakdown.innerHTML = '<p class="realtime-empty">Tidak ada data</p>';
@@ -282,25 +414,19 @@ function updateRealtimeSection(metricKey = activeMetric) {
 
 function updateChart(metricKey = activeMetric) {
   activeMetric = metricKey;
-  const series = buildSeries(metricKey);
+  const series = getSeries(metricKey);
   const color = metrics[metricKey].color;
-  const mergedValues = [...series.current, ...series.previous];
-  const yMax = determineYAxisMax(mergedValues);
-  const stepSize = determineStepSize(yMax);
-
   chart.data.datasets[0].data = series.current;
   chart.data.datasets[0].borderColor = color;
   chart.data.datasets[0].pointBorderColor = color;
   chart.data.datasets[0].backgroundColor = createGradient(color);
   chart.data.datasets[1].data = series.previous;
   chart.data.datasets[1].borderColor = hexToRgba(color, 0.35);
-
-  chart.options.scales.y.max = yMax;
-  chart.options.scales.y.ticks.stepSize = stepSize;
-
+  refreshChartScale(metricKey);
   chart.update();
   chartTitle.textContent = `${metrics[metricKey].label} • 30 hari terakhir`;
   setActiveCard(metricKey);
+  syncMetricValueWithSeries(metricKey);
   updateRealtimeSection(metricKey);
 }
 
@@ -317,12 +443,13 @@ function bindMetricInputs() {
     input.addEventListener('input', event => {
       const { name, value } = event.target;
       if (!metrics[name]) return;
-      metrics[name].value = Math.max(0, Number(value) || 0);
-      updatePercentages();
+      const numericValue = Math.max(0, Number(value) || 0);
+      metrics[name].value = numericValue;
+      rescaleSeriesToMatchValue(name, numericValue);
       if (name === activeMetric) {
-        updateChart(name);
-      } else {
-        updateRealtimeSection(activeMetric);
+        refreshChartScale(name);
+        chart.update('none');
+        updateRealtimeSection(name);
       }
     });
 
@@ -334,9 +461,52 @@ function bindMetricInputs() {
   });
 }
 
+function bindPercentageInputs() {
+  document.querySelectorAll('[data-change-input]').forEach(input => {
+    input.addEventListener('input', event => {
+      const key = event.target.dataset.changeInput;
+      if (!metrics[key]) return;
+      const rawValue = event.target.value.trim();
+      if (rawValue === '' || rawValue === '-' || rawValue === '+') {
+        return;
+      }
+      const parsed = Number(rawValue);
+      if (Number.isNaN(parsed)) {
+        return;
+      }
+      metrics[key].change = parsed;
+      updatePercentages();
+    });
+
+    input.addEventListener('blur', event => {
+      const key = event.target.dataset.changeInput;
+      if (!metrics[key]) return;
+      const parsed = Number(event.target.value);
+      if (Number.isNaN(parsed)) {
+        event.target.value = metrics[key].change || 0;
+      }
+    });
+  });
+}
+
+function bindTrendInputs() {
+  document.querySelectorAll('[data-trend-input]').forEach(select => {
+    select.addEventListener('change', event => {
+      const key = event.target.dataset.trendInput;
+      if (!metrics[key]) return;
+      const nextTrend = event.target.value === 'down' ? 'down' : 'up';
+      metrics[key].trend = nextTrend;
+      event.target.value = nextTrend;
+      updatePercentages();
+    });
+  });
+}
+
 function init() {
   bindMetricCards();
   bindMetricInputs();
+  bindPercentageInputs();
+  bindTrendInputs();
   updateCardDisplays();
   updatePercentages();
   updateChart(activeMetric);
