@@ -139,23 +139,33 @@
 
         <aside class="secondary-panel">
           <article class="card realtime-card">
-            <header>
-              <span>Pengguna aktif dalam 30 menit terakhir</span>
-              <button class="icon-button" aria-label="Opsi">⋮</button>
+            <header class="realtime-top">
+              <div>
+                <p class="realtime-title">PENGGUNA AKTIF DALAM 30 MENIT TERAKHIR</p>
+              </div>
+              <button class="status-chip" aria-label="Status laporan">
+                <span>✔</span>
+                <span class="caret">▾</span>
+              </button>
             </header>
             <p class="realtime-value" data-realtime>0</p>
-            <p class="realtime-subtitle">Pengguna aktif per menit</p>
-            <div class="realtime-breakdown">
-              <div>
-                <p>Negara</p>
-                <strong>Semua</strong>
+            <p class="realtime-subtitle" data-realtime-subtitle>PENGGUNA AKTIF PER MENIT</p>
+            <div class="realtime-table">
+              <div class="realtime-table-header">
+                <button type="button" class="table-select">
+                  <span>NEGARA</span>
+                  <span class="caret">▾</span>
+                </button>
+                <button type="button" class="table-select">
+                  <span data-realtime-label>PENGGUNA AKTIF</span>
+                  <span class="caret">▾</span>
+                </button>
               </div>
-              <div>
-                <p>Pengguna aktif</p>
-                <strong data-realtime-list>—</strong>
+              <div class="realtime-table-body" data-realtime-breakdown>
+                <p class="realtime-empty">Tidak ada data</p>
               </div>
             </div>
-            <a href="#" class="link-button">Lihat laporan real time</a>
+            <a href="#" class="link-button realtime-link">Lihat laporan real time →</a>
           </article>
         </aside>
       </main>

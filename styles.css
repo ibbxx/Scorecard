@@ -232,6 +232,11 @@ h1 {
   color: currentColor;
 }
 
+.caret {
+  font-size: 0.75rem;
+  color: currentColor;
+}
+
 .metric-value-input {
   border: none;
   background: transparent;
@@ -342,27 +347,118 @@ h1 {
   gap: 1rem;
 }
 
-.realtime-card header span {
+.realtime-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.realtime-top {
+  align-items: center;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.realtime-title {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
   font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #f5fbf6;
+  color: #0f9d58;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
 }
 
 .realtime-value {
-  font-size: 2.5rem;
-  margin: 1rem 0 0.2rem;
+  font-size: 3rem;
+  margin: 0.5rem 0 0;
+  font-weight: 500;
 }
 
 .realtime-subtitle {
-  margin: 0 0 1rem;
+  margin: 0;
   color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.realtime-breakdown {
+.realtime-table {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.realtime-table-header {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid var(--border);
-  padding-top: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+.table-select {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.table-select .caret {
+  font-size: 0.7rem;
+}
+
+.realtime-table-body {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.realtime-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 0.9rem;
+  color: var(--text);
+}
+
+.realtime-row span:last-child {
+  font-weight: 600;
+}
+
+.realtime-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.realtime-link {
+  align-self: flex-end;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .control-card header h2 {

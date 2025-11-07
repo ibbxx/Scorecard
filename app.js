@@ -47,7 +47,9 @@ let activeMetric = 'activeUsers';
 
 const chartTitle = document.querySelector('[data-active-label]');
 const realtimeValue = document.querySelector('[data-realtime]');
-const realtimeList = document.querySelector('[data-realtime-list]');
+const realtimeSubtitle = document.querySelector('[data-realtime-subtitle]');
+const realtimeBreakdown = document.querySelector('[data-realtime-breakdown]');
+const realtimeBadge = document.querySelector('[data-realtime-label]');
 const ctx = document.getElementById('trafficChart').getContext('2d');
 
 function hexToRgba(hex, alpha = 1) {
@@ -263,10 +265,19 @@ function updatePercentages() {
   });
 }
 
-function updateRealtimeSection() {
-  const value = Math.max(0, Number(metrics.activeUsers.value));
-  realtimeValue.textContent = new Intl.NumberFormat('id-ID').format(value);
-  realtimeList.textContent = value ? `${Math.max(1, Math.round(value / 5))} org/menit` : 'Tidak ada data';
+function updateRealtimeSection(metricKey = activeMetric) {
+  const metric = metrics[metricKey];
+  if (!metric) return;
+  realtimeValue.textContent = '0';
+  if (realtimeSubtitle) {
+    realtimeSubtitle.textContent = `${metric.label.toUpperCase()} PER MENIT`;
+  }
+  if (realtimeBadge) {
+    realtimeBadge.textContent = metric.label.toUpperCase();
+  }
+  if (realtimeBreakdown) {
+    realtimeBreakdown.innerHTML = '<p class="realtime-empty">Tidak ada data</p>';
+  }
 }
 
 function updateChart(metricKey = activeMetric) {
@@ -290,6 +301,7 @@ function updateChart(metricKey = activeMetric) {
   chart.update();
   chartTitle.textContent = `${metrics[metricKey].label} • 30 hari terakhir`;
   setActiveCard(metricKey);
+  updateRealtimeSection(metricKey);
 }
 
 function bindMetricCards() {
@@ -309,9 +321,8 @@ function bindMetricInputs() {
       updatePercentages();
       if (name === activeMetric) {
         updateChart(name);
-      }
-      if (name === 'activeUsers') {
-        updateRealtimeSection();
+      } else {
+        updateRealtimeSection(activeMetric);
       }
     });
 
@@ -328,7 +339,6 @@ function init() {
   bindMetricInputs();
   updateCardDisplays();
   updatePercentages();
-  updateRealtimeSection();
   updateChart(activeMetric);
 }
 
