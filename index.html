@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melly Manipulasi</title>
+  <link rel="icon" type="image/jpeg" href="https://i.pinimg.com/736x/d7/85/27/d78527785d143192c1cef5a27da9f65a.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="logo-circle">
+          <img src="https://i.pinimg.com/1200x/7f/8d/88/7f8d8873bf90cd135e74f1fefcf9636e.jpg" alt="Logo Melly" />
+        </div>
+        <div class="brand-meta">
+          <span class="brand-title">Analytics</span>
+          <span class="brand-account">karsadata</span>
+        </div>
+      </div>
+      <div class="search-box">
+        <input type="text" placeholder="Coba telusuri 'Pertumbuhan pengguna dari bulan ke bulan'" />
+      </div>
+      <div class="top-actions">
+        <button type="button" aria-label="Notifikasi">🔔</button>
+        <button type="button" aria-label="Bantuan">❔</button>
+        <div class="avatar">IF</div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="sidebar" aria-label="Navigasi utama">
+        <button class="nav-item active">🏠</button>
+        <button class="nav-item">📊</button>
+        <button class="nav-item">🎯</button>
+        <button class="nav-item">📨</button>
+        <button class="nav-item">⚙️</button>
+      </nav>
+
+      <main class="dashboard">
+        <section class="primary-panel card">
+          <header class="panel-header">
+            <div>
+              <p class="eyebrow">Semua akun ▸ Karsa Data</p>
+              <h1>Beranda</h1>
+            </div>
+            <button class="link-button">Lihat ringkasan laporan</button>
+          </header>
+
+          <div class="metric-strip" role="tablist">
+            <div class="metric-card active" data-metric="activeUsers" role="tab" aria-selected="true">
+              <div class="metric-label">
+                <span>Pengguna aktif</span>
+                <span class="metric-caret" aria-hidden="true">▾</span>
+              </div>
+              <input
+                type="number"
+                class="metric-value-input"
+                name="activeUsers"
+                min="0"
+                max="100000"
+                value="251"
+                aria-label="Pengguna aktif"
+              />
+              <div class="metric-change positive" data-change="activeUsers">↑ 0%</div>
+            </div>
+            <div class="metric-card" data-metric="totalEvents" role="tab">
+              <div class="metric-label">
+                <span>Jumlah peristiwa</span>
+                <span class="metric-caret" aria-hidden="true">▾</span>
+              </div>
+              <input
+                type="number"
+                class="metric-value-input"
+                name="totalEvents"
+                min="0"
+                max="100000"
+                value="1100"
+                aria-label="Jumlah peristiwa"
+              />
+              <div class="metric-change positive" data-change="totalEvents">↑ 0%</div>
+            </div>
+            <div class="metric-card" data-metric="sessions" role="tab">
+              <div class="metric-label">
+                <span>Sesi</span>
+                <span class="metric-caret" aria-hidden="true">▾</span>
+              </div>
+              <input
+                type="number"
+                class="metric-value-input"
+                name="sessions"
+                min="0"
+                max="100000"
+                value="270"
+                aria-label="Sesi"
+              />
+              <div class="metric-change positive" data-change="sessions">↑ 0%</div>
+            </div>
+            <div class="metric-card" data-metric="views" role="tab">
+              <div class="metric-label">
+                <span>Tampilan</span>
+                <span class="metric-caret" aria-hidden="true">▾</span>
+              </div>
+              <input
+                type="number"
+                class="metric-value-input"
+                name="views"
+                min="0"
+                max="100000"
+                value="382"
+                aria-label="Tampilan"
+              />
+              <div class="metric-change positive" data-change="views">↑ 0%</div>
+            </div>
+          </div>
+
+          <div class="chart-wrapper">
+            <div class="chart-toolbar">
+              <span class="chart-title" data-active-label>Pengguna aktif • 30 hari terakhir</span>
+              <div class="chart-range">
+                <span>30 hari terakhir</span>
+              </div>
+            </div>
+            <div class="chart-canvas">
+              <canvas id="trafficChart" aria-label="Tren pengguna"></canvas>
+            </div>
+            <div class="legend">
+              <span class="legend-item current">30 hari terakhir</span>
+              <span class="legend-item previous">Periode sebelumnya</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="secondary-panel">
+          <article class="card realtime-card">
+            <header>
+              <span>Pengguna aktif dalam 30 menit terakhir</span>
+              <button class="icon-button" aria-label="Opsi">⋮</button>
+            </header>
+            <p class="realtime-value" data-realtime>0</p>
+            <p class="realtime-subtitle">Pengguna aktif per menit</p>
+            <div class="realtime-breakdown">
+              <div>
+                <p>Negara</p>
+                <strong>Semua</strong>
+              </div>
+              <div>
+                <p>Pengguna aktif</p>
+                <strong data-realtime-list>—</strong>
+              </div>
+            </div>
+            <a href="#" class="link-button">Lihat laporan real time</a>
+          </article>
+        </aside>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
